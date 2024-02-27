@@ -1,6 +1,7 @@
+import asyncio
 import logging
 
-
+import aioschedule
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import InputFile
 from aiogram.utils import executor
@@ -64,7 +65,21 @@ def convert_to_binary_data(filename):
 def confert_to_img_file(bin):
     image=BytesIO(dec64(bin))
     return image
+async def start_mailing():  # Функция рассылки
+    for i in DB.all_users():
+        print(i,i[1])
+        try:
+            await bot.send_message(chat_id=i[1],text="ПРИВЕТ")#photo=(confert_to_img_file(DB.get_image_by_tag(i[-1]))))
+        except:
+            pass
 
+async def scheduler():
+    aioschedule.every(1).minutes.do(start_mailing)  # Тут говорим, что рассылка будет раз в день, отсчет начинается с момента запуска кода
+    while True:
+        await aioschedule.run_pending()
+        await asyncio.sleep(1)
+async def onstart(_):
+    asyncio.create_task(scheduler())
 #хэндлер для обработки команды старт
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
