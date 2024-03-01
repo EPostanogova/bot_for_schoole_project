@@ -19,10 +19,11 @@ class Database:
     def __init__(self,db_path):
         self.logger=logging.getLogger('BD')  #прописываем тэг логов, чтобы понимать, что речь о БД
         self.db_path=db_path #передаем полученный путь в глобальную переменную
-        self.db_path = '../../example.db'  #тут указали путь по умолчанию,потом надо это убрать
+        # self.db_path = '../../ex.db'  #тут указали путь по умолчанию,потом надо это убрать
         #в блок try помещаем код, который может вызвать ошибку
         try:
-            self.con=sqlite3.connect(self.db_path) #создаем контакт с БД
+            # self.con=sqlite3.connect(self.db_path) #создаем контакт с БД
+            self.con=sqlite3.connect('data.db') #создаем контакт с БД
             self.cursorObj = self.con.cursor() #созадем курсор для БД
             self.logger.info("Успешное подключение к БД") #Запись в жарнал логов под уровнем INFO
         #В блок except помещаем инструкции на случай ошибки. В данном случае класс Error писывает все возможные ошибки, связанные с БД

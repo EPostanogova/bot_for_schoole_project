@@ -6,12 +6,14 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.types import InputFile
 from aiogram.utils import executor
 
+import aps
 from config.config import TOKEN
 from constants.settings import DB_DATA, ROOT_DIR
 from database.databese import Database
 from io import BytesIO
 from base64 import b64decode as dec64
-
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import datetime,timedelta
 #заводим журнал логов с тэгом
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('Bot_')
@@ -34,6 +36,8 @@ DB.create_tag_table()
 
 
 
+
+
 #функция для записи информации в словарь для бд,
 # на вход принимает обязательно сообщение от пользователя и бд
 # и не обязательно картинку и тэг
@@ -47,7 +51,8 @@ def add_info_to_db(message,DB,tag=None,img=None):
               'tag':tag}
 
     #вызов функций для записи в таблицы
-    DB.add_new_user(user_info=info_dir)
+    if DB.firstSeen(message.from_user.id):
+        DB.add_new_user(user_info=info_dir)
     DB.add_new_img(user_info=info_dir)
     #вызов функции для распечатки результатов из таблицы пользователей
     # (нужна только для отладки)
@@ -83,6 +88,11 @@ async def onstart(_):
 #хэндлер для обработки команды старт
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
+    # объект класса для рассылки с установкой временной зоны
+    # scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    # scheduler.add_job(aps.send_message_cron(bot,message), trigger='cron', hour=datetime.now().hour,
+    #                   minute=datetime.now().minute + 1, start_date=datetime.now(), kwargs={'bot': bot})
+    # scheduler.start()
     await message.reply("Привет! Тут ты можешь просматривать картинки по категориям.")
     #проверяем записан ли пользователь в бд, если нет, то записываем
     if not DB.firstSeen(message.from_user.id):
